@@ -17,7 +17,7 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: Restore
-        run: dotnet restore ParentalLock.sln
+        run: dotnet restore FoXKidLockAgent.sln
       - name: Publish self-contained agent
         run: >
           dotnet publish src/FoXKidLockAgent/FoXKidLockAgent.csproj -c Release -r win-x64
