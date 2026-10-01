@@ -1,5 +1,5 @@
 #define MyAppName "Rodičovský zámek PC"
-#define MyAppVersion "3.0.0"
+#define MyAppVersion "0.1.0"
 #define MyAppExeName "FoXKidLockAgent.exe"
 
 [Setup]
