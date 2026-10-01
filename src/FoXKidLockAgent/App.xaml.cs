@@ -12,7 +12,7 @@ public partial class App : System.Windows.Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        _mutex = new Mutex(true, @"Global\ParentalLockPC_SingleInstance", out var created);
+        _mutex = new Mutex(true, @"Global\FoXKidLockAgent_SingleInstance", out var created);
         if (!created) { Shutdown(); return; }
         _controller = new AgentController(AgentSettings.Load());
         _controller.Start();

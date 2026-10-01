@@ -1,4 +1,4 @@
-#define MyAppName "Rodičovský zámek PC"
+#define MyAppName "FoXKidLock Agent"
 #define MyAppVersion "0.1.0"
 #define MyAppExeName "FoXKidLockAgent.exe"
 
@@ -6,10 +6,10 @@
 AppId={{87B0CA77-D885-44D1-AD0E-9FC503BB49B0}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-DefaultDirName={autopf}\RodicovskyZamekPC
+DefaultDirName={autopf}\FoXKidLockAgent
 DefaultGroupName={#MyAppName}
 OutputDir=..\dist\installer
-OutputBaseFilename=Instalator-RodicovskyZamek-Windows
+OutputBaseFilename=FoXKidLock-Agent-Windows-Setup
 Compression=lzma2
 SolidCompression=yes
 PrivilegesRequired=admin

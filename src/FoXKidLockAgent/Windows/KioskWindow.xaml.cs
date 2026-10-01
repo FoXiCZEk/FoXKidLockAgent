@@ -13,7 +13,7 @@ public partial class KioskWindow : Window
     {
         try
         {
-            var profile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ParentalLockPC", "WebViewData");
+            var profile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FoXKidLockAgent", "WebViewData");
             var environment = await CoreWebView2Environment.CreateAsync(null, profile);
             await WebView.EnsureCoreWebView2Async(environment);
             WebView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;

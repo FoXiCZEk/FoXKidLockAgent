@@ -18,7 +18,7 @@ dotnet publish src/FoXKidLockAgent/FoXKidLockAgent.csproj -c Release -r win-x64 
 iscc installer/setup.iss
 ```
 
-Výsledkem je `dist/installer/Instalator-RodicovskyZamek-Windows.exe`. Instalátor vyžaduje administrátorská práva, zkopíruje agent do Program Files a vytvoří úlohu Windows pro start při přihlášení s nejvyššími oprávněními.
+Výsledkem je `dist/installer/FoXKidLock-Agent-Windows-Setup.exe`. Instalátor vyžaduje administrátorská práva, zkopíruje agent do Program Files a vytvoří úlohu Windows pro start při přihlášení s nejvyššími oprávněními.
 
 ## GitHub release
 

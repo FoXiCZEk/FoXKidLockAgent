@@ -1,6 +1,6 @@
 # 🛠️ Technická specifikace: Samostatný Desktop Agent pro Windows (C# .NET)
 
-Tento dokument je **detailní výrobní specifikací a architektonickým návrhem** pro samostatnou, nativní klientskou aplikaci (Desktop Agent) běžící na pozadí operačního systému Windows 10 a Windows 11 pro projekt **Rodičovský Zámek PC**.
+Tento dokument je **detailní výrobní specifikací a architektonickým návrhem** pro samostatnou, nativní klientskou aplikaci (Desktop Agent) běžící na pozadí operačního systému Windows 10 a Windows 11 pro projekt **FoXKidLock**.
 
 ---
 
@@ -71,7 +71,7 @@ Proto je agent navržen jako **dvojice úzce spolupracujících procesů**:
  │                      WINDOWS SESSION 0 (SYSTEM)                        │
  │                                                                        │
  │  ┌──────────────────────────────────────────────────────────────────┐  │
- │  │              ParentalLockService.exe (Windows Service)           │  │
+ │  │              FoXKidLockService.exe (Windows Service)           │  │
  │  │                                                                  │  │
  │  │  • Běží s právy NT AUTHORITY\SYSTEM (nepřemožitelné běžným žákem)│  │
  │  │  • Spravuje soubor hosts (C:\Windows\System32\drivers\etc\hosts) │  │
@@ -80,14 +80,14 @@ Proto je agent navržen jako **dvojice úzce spolupracujících procesů**:
  │  └──────────────────────────────────▲───────────────────────────────┘  │
  └─────────────────────────────────────┼──────────────────────────────────┘
                                        │
-                    Lokální Named Pipe │ \\.\pipe\ParentalLock_IPC
+                    Lokální Named Pipe │ \\.\pipe\FoXKidLock_IPC
                     (Zabezpečená obousměrná komunikace)
                                        │
  ┌─────────────────────────────────────▼──────────────────────────────────┐
  │               WINDOWS SESSION 1+ (PŘIHLÁŠENÝ UŽIVATEL)                 │
  │                                                                        │
  │  ┌──────────────────────────────────────────────────────────────────┐  │
- │  │               ParentalLockUI.exe (Kiosk & Overlay)               │  │
+ │  │               FoXKidLockAgent.exe (Kiosk & Overlay)               │  │
  │  │                                                                  │  │
  │  │  • Běží v aktivní ploše přihlášeného dítěte                      │  │
  │  │  • Vytváří TopMost okna na VŠECH monitorech (Multi-Monitor Lock) │  │
@@ -100,7 +100,7 @@ Proto je agent navržen jako **dvojice úzce spolupracujících procesů**:
 ```
 
 > **Poznámka pro zjednodušenou instalaci:**  
-> Agent může volitelně běžet i jako **jeden proces s elevovanými právy** (`ParentalLockAgent.exe`), spouštěný přes Windows Plánovač úloh s volbou *"Spustit s nejvyššími oprávněními"* (`/rl highest`) při přihlášení uživatele. To eliminuje nutnost registrace Windows Service a je to ideální pro běžné rodinné použití.
+> Agent může volitelně běžet i jako **jeden proces s elevovanými právy** (`FoXKidLockAgent.exe`), spouštěný přes Windows Plánovač úloh s volbou *"Spustit s nejvyššími oprávněními"* (`/rl highest`) při přihlášení uživatele. To eliminuje nutnost registrace Windows Service a je to ideální pro běžné rodinné použití.
 
 ---
 
@@ -180,7 +180,7 @@ Agent implementuje ochranu proti rozptylování videi a sociálními sítěmi:
 - Cesta: `C:\Windows\System32\drivers\etc\hosts`
 - Při stavu `locked_studying` (pokud je web filtr zapnutý) agent atomicky zapíše:
   ```hosts
-  # === RODICOVSKY_ZAMEK_WEB_BLOCK_START ===
+  # === FOXKIDLOCK_WEB_BLOCK_START ===
   127.0.0.1 youtube.com
   ::1 youtube.com
   127.0.0.1 www.youtube.com
@@ -189,7 +189,7 @@ Agent implementuje ochranu proti rozptylování videi a sociálními sítěmi:
   ::1 tiktok.com
   127.0.0.1 netflix.com
   ::1 netflix.com
-  # === RODICOVSKY_ZAMEK_WEB_BLOCK_END ===
+  # === FOXKIDLOCK_WEB_BLOCK_END ===
   ```
 - Následně vyprázdní DNS mezipaměť voláním Win32 API `DnsFlushResolverCache()` (ekvivalent `ipconfig /flushdns`).
 - Po odemčení (`unlocked_playing`) blok z hosts souboru okamžitě odstraní.
@@ -262,7 +262,7 @@ Děti jsou vynalézavé. Samostatný agent implementuje tyto vrstvy obrany:
 2. **Vzájemný Watchdog:**  
    Služba hlídá klientské UI okno; pokud by klientský proces spadl nebo byl násilně shozen, služba ho do 500 ms znovu nastartuje v relaci přihlášeného uživatele.
 3. **Globální systémový Mutex:**  
-   Zabraňuje vícenásobnému spuštění pomocí pojmenovaného mutexu `Global\ParentalLockPC_SingleInstance`.
+   Zabraňuje vícenásobnému spuštění pomocí pojmenovaného mutexu `Global\FoXKidLockAgent_SingleInstance`.
 4. **Ochrana při nouzovém režimu (Safe Mode):**  
    Služba se registruje v registrech `HKLM\SYSTEM\CurrentControlSet\Control\SafeBoot\Network`, aby byla aktivní i v nouzovém režimu s podporou sítě.
 
@@ -271,10 +271,10 @@ Děti jsou vynalézavé. Samostatný agent implementuje tyto vrstvy obrany:
 ## 📁 9. Struktura .NET projektu a třídní model
 
 ```
-ParentalLock.sln
+FoXKidLockAgent.sln
 │
 ├── src/
-│   ├── ParentalLock.Core/             # Sdílená logika a datové modely
+│   ├── FoXKidLock.Core/             # Sdílená logika a datové modely
 │   │   ├── Models/
 │   │   │   ├── AgentHeartbeatRequest.cs
 │   │   │   ├── AgentHeartbeatResponse.cs
@@ -289,7 +289,7 @@ ParentalLock.sln
 │   │       ├── LocalPinVerifier.cs    # Offline SHA-256 ověření PINu
 │   │       └── WindowsRegistryPolicy.cs # Vypnutí/zapnutí Task Manageru
 │   │
-│   ├── ParentalLock.Agent/            # Hlavní spustitelná aplikace
+│   ├── FoXKidLockAgent/            # Hlavní spustitelná aplikace
 │   │   ├── App.xaml / App.xaml.cs     # Inicializace, Mutex, Tray Icon
 │   │   ├── Windows/
 │   │   │   ├── KioskWindow.xaml       # Hlavní okno s WebView2
@@ -303,9 +303,9 @@ ParentalLock.sln
 │   │       ├── ProcessMonitorWorker.cs# ETW nebo WMI hlídač
 │   │       └── ServerSyncWorker.cs    # Heartbeat a SSE smyčka
 │   │
-│   └── ParentalLock.Service/          # Volitelná systémová služba Windows
+│   └── FoXKidLock.Service/          # Volitelná systémová služba Windows
 │       ├── Program.cs
-│       └── ParentalLockWindowsService.cs
+│       └── FoXKidLockWindowsService.cs
 │
 └── installer/
     └── InnoSetup_Installer.iss        # Skript pro vytvoření instalátoru
@@ -324,7 +324,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace ParentalLock.Agent.Native;
+namespace FoXKidLockAgent.Native;
 
 public class LowLevelKeyboardHook : IDisposable
 {
@@ -420,7 +420,7 @@ using System.IO;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
 
-namespace ParentalLock.Agent.Windows;
+namespace FoXKidLockAgent.Windows;
 
 public partial class KioskWindow : Window
 {
@@ -443,7 +443,7 @@ public partial class KioskWindow : Window
     private async void KioskWindow_Loaded(object sender, RoutedEventArgs e)
     {
         // Izolovaný profil WebView2, aby nedocházelo ke kolizi s uživatelským prohlížečem
-        string userDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ParentalLockPC", "WebViewData");
+        string userDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FoXKidLockAgent", "WebViewData");
         var env = await CoreWebView2Environment.CreateAsync(null, userDataDir);
         await WebView.EnsureCoreWebView2Async(env);
 
@@ -480,13 +480,13 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace ParentalLock.Core.Services;
+namespace FoXKidLock.Core.Services;
 
 public class HostsFilterManager
 {
     private static readonly string HostsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), @"drivers\etc\hosts");
-    private const string TagStart = "# === RODICOVSKY_ZAMEK_WEB_BLOCK_START ===";
-    private const string TagEnd = "# === RODICOVSKY_ZAMEK_WEB_BLOCK_END ===";
+    private const string TagStart = "# === FOXKIDLOCK_WEB_BLOCK_START ===";
+    private const string TagEnd = "# === FOXKIDLOCK_WEB_BLOCK_END ===";
 
     [DllImport("dnsapi.dll", EntryPoint = "DnsFlushResolverCache")]
     private static extern uint DnsFlushResolverCache();
@@ -508,7 +508,7 @@ public class HostsFilterManager
                 var sb = new StringBuilder();
                 sb.AppendLine();
                 sb.AppendLine(TagStart);
-                sb.AppendLine($"# Generováno agentem Rodičovský Zámek PC: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                sb.AppendLine($"# Generováno agentem FoXKidLock: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
 
                 foreach (var d in domains.Select(x => x.Trim().ToLower()).Where(x => !string.IsNullOrEmpty(x)))
                 {
@@ -542,7 +542,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Management;
 
-namespace ParentalLock.Core.Services;
+namespace FoXKidLock.Core.Services;
 
 public class ProcessWatchdog : IDisposable
 {
@@ -658,7 +658,7 @@ public class ProcessWatchdog : IDisposable
 
 ### 11.1 Příkaz pro sestavení jediného `.exe` souboru:
 ```bash
-dotnet publish src/ParentalLock.Agent/ParentalLock.Agent.csproj \
+dotnet publish src/FoXKidLockAgent/FoXKidLockAgent.csproj \
   -c Release \
   -r win-x64 \
   --self-contained true \
@@ -667,32 +667,32 @@ dotnet publish src/ParentalLock.Agent/ParentalLock.Agent.csproj \
   /p:EnableCompressionInSingleFile=true \
   -o ./dist/agent-win64
 ```
-Výsledkem je jeden čistý spustitelný soubor `ParentalLockAgent.exe`, který nevyžaduje instalaci .NETu ani žádné další DLL knihovny.
+Výsledkem je jeden čistý spustitelný soubor `FoXKidLockAgent.exe`, který nevyžaduje instalaci .NETu ani žádné další DLL knihovny.
 
 ### 11.2 Inno Setup instalátor (`installer/setup.iss`)
 ```iss
 [Setup]
-AppName=Rodičovský Zámek PC - Systémový Agent
+AppName=FoXKidLock - Systémový Agent
 AppVersion=3.0.0
-DefaultDirName={autopf}\RodicovskyZamekPC
-DefaultGroupName=Rodičovský Zámek PC
+DefaultDirName={autopf}\FoXKidLockAgent
+DefaultGroupName=FoXKidLock
 OutputDir=..\dist\installer
-OutputBaseFilename=Instalator-RodicovskyZamek-Windows
+OutputBaseFilename=FoXKidLock-Agent-Windows-Setup
 Compression=lzma2
 SolidCompression=yes
 PrivilegesRequired=admin
 
 [Files]
-Source: "..\dist\agent-win64\ParentalLockAgent.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\dist\agent-win64\FoXKidLockAgent.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\public\agent\server_url.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Registry]
 ; Automatický start s nejvyššími právy po přihlášení
-Root: HKLM; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "RodicovskyZamekAgent"; ValueData: """{app}\ParentalLockAgent.exe"" --silent"; Flags: uninsdeletevalue
+Root: HKLM; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "FoXKidLockAgent"; ValueData: """{app}\FoXKidLockAgent.exe"" --silent"; Flags: uninsdeletevalue
 
 [Run]
 ; Spuštění agenta ihned po dokončení instalace
-Filename: "{app}\ParentalLockAgent.exe"; Parameters: "--silent"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\FoXKidLockAgent.exe"; Parameters: "--silent"; Flags: nowait postinstall skipifsilent
 ```
 
 ---
