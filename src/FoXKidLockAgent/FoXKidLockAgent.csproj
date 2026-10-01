@@ -7,8 +7,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <AssemblyName>ParentalLockAgent</AssemblyName>
-    <RootNamespace>ParentalLock.Agent</RootNamespace>
+    <AssemblyName>FoXKidLockAgent</AssemblyName>
+    <RootNamespace>FoXKidLockAgent</RootNamespace>
     <Version>3.0.0</Version>
   </PropertyGroup>
   <ItemGroup>

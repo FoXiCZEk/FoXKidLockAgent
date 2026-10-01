@@ -1,4 +1,4 @@
-# Rodičovský zámek PC – Windows agent
+# FoXKidLockAgent – Windows agent
 
 Nativní WPF agent pro Windows 10/11. Při stavu `locked_studying` zobrazí výukový kiosk na hlavní obrazovce, zakryje vedlejší monitory a zablokuje běžné systémové klávesové zkratky. Stav a seznam blokovaných procesů načítá z API.
 
@@ -13,8 +13,8 @@ Používejte jej pouze na počítačích, které spravujete, a vždy se samostat
 Je vyžadován [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) a pro instalátor [Inno Setup 6](https://jrsoftware.org/isinfo.php).
 
 ```powershell
-dotnet restore ParentalLock.sln
-dotnet publish src/ParentalLock.Agent/ParentalLock.Agent.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:EnableCompressionInSingleFile=true -o dist/agent-win64
+dotnet restore FoXKidLockAgent.sln
+dotnet publish src/FoXKidLockAgent/FoXKidLockAgent.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:EnableCompressionInSingleFile=true -o dist/agent-win64
 iscc installer/setup.iss
 ```
 
@@ -29,7 +29,7 @@ git init
 git add .
 git commit -m "Initial Windows agent"
 git tag v3.0.0
-git remote add origin https://github.com/VAŠE-ORGANIZACE/FoXKidLock.git
+git remote add origin https://github.com/FoXiCZEk/FoXKidLockAgent.git
 git push -u origin main --tags
 ```
 

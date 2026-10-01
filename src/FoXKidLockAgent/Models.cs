@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace ParentalLock.Agent;
+namespace FoXKidLockAgent;
 
 public sealed class AgentSettings
 {

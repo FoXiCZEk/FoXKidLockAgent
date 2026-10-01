@@ -1,8 +1,8 @@
-using ParentalLock.Agent.Services;
-using ParentalLock.Agent.Windows;
+using FoXKidLockAgent.Services;
+using FoXKidLockAgent.Windows;
 using System.Windows;
 
-namespace ParentalLock.Agent;
+namespace FoXKidLockAgent;
 
 public partial class App : System.Windows.Application
 {

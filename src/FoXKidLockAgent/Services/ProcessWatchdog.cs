@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Management;
 
-namespace ParentalLock.Agent.Services;
+namespace FoXKidLockAgent.Services;
 
 public sealed class ProcessWatchdog : IDisposable
 {

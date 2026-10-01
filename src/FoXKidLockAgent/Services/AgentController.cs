@@ -1,10 +1,10 @@
 using System.Net.Http.Json;
 using System.Net.Http;
 using System.Windows;
-using ParentalLock.Agent.Native;
-using ParentalLock.Agent.Windows;
+using FoXKidLockAgent.Native;
+using FoXKidLockAgent.Windows;
 
-namespace ParentalLock.Agent.Services;
+namespace FoXKidLockAgent.Services;
 
 public sealed class AgentController : IDisposable
 {

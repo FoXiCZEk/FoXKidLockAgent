@@ -3,7 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace ParentalLock.Agent.Windows;
+namespace FoXKidLockAgent.Windows;
 
 public partial class KioskWindow : Window
 {
